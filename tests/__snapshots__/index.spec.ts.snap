@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`replace > should replace with contents of env files 1`] = `
+"/* eslint-disable no-undef */
+console.log(\\"Test local value\\");
+console.log(2);
+console.log(false);
+"
+`;

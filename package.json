@@ -1,0 +1,65 @@
+{
+  "name": "rollup-plugin-typed-dotenv",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "format": "prettier --write --cache .",
+    "lint": "eslint --cache --cache-location node_modules/.cache/eslint/  --fix .",
+    "build": "tsc --noEmit && rollup --config rollup.config.ts --configPlugin typescript",
+    "test": "vitest --run",
+    "test:ts": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-replace": "^5.0.2",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
+    "@typescript-eslint/parser": "^6.3.0",
+    "@vitest/coverage-v8": "^0.34.1",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.1",
+    "rollup": "^3.27.2",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-delete": "^2.0.0",
+    "simple-git-hooks": "^2.9.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "exports": {
+    "types": "./dist/types/index.d.ts",
+    "import": "./dist/es/index.js",
+    "default": "./dist/cjs/index.js"
+  },
+  "types": "./dist/types/index.d.ts",
+  "author": "Taiki Abe <taiki.abe@ymail.ne.jp>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mato533/rollup-plugin-typed-dotenv.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mato533/rollup-plugin-typed-dotenv/issues"
+  },
+  "homepage": "https://github.com/mato533/rollup-plugin-typed-dotenv#readme",
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "rollup",
+    "plugin",
+    "rollup-plugin",
+    "dotenv"
+  ]
+}
