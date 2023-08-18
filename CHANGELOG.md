@@ -1,4 +1,8 @@
-# 1.0.0 (2023-08-18)
+## 1.0.1 (2023-08-18)
+
+### Bug Fixes
+
+- add default statment for type export for plugin ([2ba9109](https://github.com/mato533/rollup-plugin-typed-dotenv/commit/2ba9109013bb603cccb1e08190e905fac2eee06c))
 
 ### Features
 
