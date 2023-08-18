@@ -32,6 +32,7 @@
     "@rollup/plugin-replace": "^5.0.2",
     "dotenv": "^16.3.1"
   },
+  "packageManager": "pnpm@8.6.12",
   "npx": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
   },
