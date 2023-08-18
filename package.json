@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-typed-dotenv",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "scripts": {
     "format": "prettier --write --cache .",
@@ -10,10 +10,8 @@
     "test:ts": "tsc --noEmit",
     "test:coverage": "vitest run --coverage"
   },
-  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-typescript": "^11.1.2",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
@@ -31,7 +29,25 @@
     "vitest": "^0.34.1"
   },
   "dependencies": {
+    "@rollup/plugin-replace": "^5.0.2",
     "dotenv": "^16.3.1"
+  },
+  "npx": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write --cache --ignore-unknown"
+    ],
+    "src/**/*.ts": [
+      "eslint --cache --cache-location node_modules/.cache/eslint/ --fix"
+    ],
+    "**/*.d.ts": [
+      "eslint --cache --cache-location node_modules/.cache/eslint/ --fix"
+    ],
+    "tests/**/*.ts": [
+      "eslint --cache --cache-location node_modules/.cache/eslint/ --fix"
+    ]
   },
   "main": "./dist/cjs/index.js",
   "module": "./dist/es/index.js",
@@ -42,6 +58,7 @@
   },
   "types": "./dist/types/index.d.ts",
   "author": "Taiki Abe <taiki.abe@ymail.ne.jp>",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mato533/rollup-plugin-typed-dotenv.git"
