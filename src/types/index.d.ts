@@ -15,4 +15,4 @@ export interface TypeDefinition {
 }
 export type EnumTypes = 'boolean' | 'number' | 'string';
 
-export function typedDotenv(options?: PluginOptions): Plugin;
+export default function typedDotenv(options?: PluginOptions): Plugin;
