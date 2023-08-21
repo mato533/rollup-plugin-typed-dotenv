@@ -1,56 +1,15 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
 
-import { rollup } from 'rollup';
+import {
+  dirFixtures,
+  buildAndAssertOutput,
+  getTypeInfo,
+  getEnvName,
+} from './utils';
 
-import type { TypeDefinition } from '@/types';
+import type { NotNullPluginOptions } from '@/types';
 
-import typedDotenv from '@/index';
-import { getReplacements } from '@/utils';
-
-interface TestParams {
-  scenario: string;
-  dirFixtures: string;
-}
-
-const dirnameFixtures = './__fixtures__';
-const dirFixtures = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  dirnameFixtures,
-);
-
-const defineFixtureFileName = (param: TestParams) => {
-  const { scenario, dirFixtures: dir } = param;
-  const inputFile = path.join(dir, `${scenario}.js`);
-  return inputFile;
-};
-
-const build = async (param: TestParams) => {
-  const inputFile = defineFixtureFileName(param);
-  const bundle = await rollup({
-    input: inputFile,
-    plugins: [
-      typedDotenv({
-        envDir: 'env',
-        values: {
-          ROLLUP_VALUE_STRING: 'string',
-          ROLLUP_VALUE_NUMBER: 'number',
-          ROLLUP_VALUE_FALSE: 'boolean',
-        },
-      }),
-    ],
-  });
-
-  return await bundle.generate({});
-};
-
-const buildAndAssertOutput = async (param: TestParams) => {
-  const output = await build(param);
-
-  expect(output.output.length).toBe(1);
-  const [{ code: generated }] = output.output;
-  expect(generated).toMatchSnapshot();
-};
+import { getReplacements, parseOptions } from '@/utils';
 
 describe('replace', () => {
   afterEach(() => {
@@ -63,6 +22,134 @@ describe('replace', () => {
     await buildAndAssertOutput({
       scenario: 'index',
       dirFixtures: dirFixtures,
+      options: {
+        envDir: 'env',
+        values: {
+          ROLLUP_VALUE_STRING: 'string',
+          ROLLUP_VALUE_NUMBER: 'number',
+          ROLLUP_VALUE_FALSE: 'boolean',
+        },
+      },
+    });
+  });
+  it('should throw error from rollup-plugin-replace', async () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(dirFixtures);
+    expect(async () => {
+      await buildAndAssertOutput({
+        scenario: 'index',
+        dirFixtures: dirFixtures,
+        options: {
+          envDir: 'env',
+          values: {
+            ROLLUP_DEBUG: 'boolean',
+          },
+        },
+      });
+    }).rejects.toThrowError();
+  });
+});
+
+describe('option', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+  it('envDir', () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(path.join(dirFixtures, 'env'));
+    const key = 'ROLLUP_VALUE_STRING4';
+
+    const values = getTypeInfo({ key, type: 'string' });
+
+    const options: NotNullPluginOptions = parseOptions({ values });
+
+    const result = getReplacements(
+      options.envDir,
+      options.envPrefix,
+      options.envKey,
+      options.values,
+    );
+
+    expect(Object.values(result)).toHaveLength(1);
+    expect(JSON.parse(result[getEnvName(key)])).toBe('.env.test.local');
+  });
+
+  it('envPrefix', () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(path.join(dirFixtures, 'env'));
+    const key = 'TEST_VALUE_STRING1';
+    const values = getTypeInfo({ key, type: 'string' });
+
+    const options: NotNullPluginOptions = parseOptions({
+      envPrefix: 'TEST_VALUE_',
+      values,
+    });
+
+    const result = getReplacements(
+      options.envDir,
+      options.envPrefix,
+      options.envKey,
+      options.values,
+    );
+
+    expect(Object.values(result)).toHaveLength(1);
+    expect(JSON.parse(result[getEnvName(key)])).toBe('TEST_PREFIX');
+  });
+  it('envKey', () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(path.join(dirFixtures, 'env'));
+    process.env['TEST_NODE_MODE'] = 'staging';
+
+    const key1 = 'ROLLUP_VALUE_STAGING1';
+    const key2 = 'ROLLUP_VALUE_STAGING2';
+
+    const values = getTypeInfo([
+      { key: key1, type: 'number' },
+      { key: key2, type: 'number' },
+    ]);
+
+    const options: NotNullPluginOptions = parseOptions({
+      envKey: 'TEST_NODE_MODE',
+      values,
+    });
+
+    const result = getReplacements(
+      options.envDir,
+      options.envPrefix,
+      options.envKey,
+      options.values,
+    );
+
+    expect(Object.values(result)).toHaveLength(2);
+    expect(result[getEnvName(key1)]).toBe('100');
+    expect(result[getEnvName(key2)]).toBe('99');
+    delete process.env.TEST_NODE_MODE;
+  });
+  it('envKey - not set to enviroment valiables', () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(path.join(dirFixtures, 'env'));
+
+    const key = 'ROLLUP_VALUE_STAGING1';
+
+    const typeInfo = getTypeInfo([{ key, type: 'number' }]);
+    const { envDir, envPrefix, envKey, values }: NotNullPluginOptions =
+      parseOptions({
+        envKey: 'TEST_NODE_MODE',
+        values: typeInfo,
+      });
+
+    const result = getReplacements(envDir, envPrefix, envKey, values);
+
+    expect(Object.values(result)).toHaveLength(0);
+  });
+  it('preventAssignment', async () => {
+    vi.spyOn(process, 'cwd').mockReturnValue(dirFixtures);
+
+    await buildAndAssertOutput({
+      scenario: 'index',
+      dirFixtures: dirFixtures,
+      options: {
+        envDir: 'env',
+        values: {
+          ROLLUP_DEBUG: 'boolean',
+        },
+        preventAssignment: true,
+      },
     });
   });
 });
@@ -83,63 +170,73 @@ describe('env', () => {
     `(
       'shoud be highest priority when it exists: $expected ',
       ({ key, expected }) => {
-        const typeInfo: TypeDefinition = {};
-        typeInfo[key] = 'string';
+        const typeInfo = getTypeInfo({ key, type: 'string' });
 
-        const result = Object.values(
-          getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo),
-        );
-
-        expect(result).toHaveLength(1);
-        expect(JSON.parse(result[0])).toBe(expected);
+        const result = getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo);
+        expect(Object.values(result)).toHaveLength(1);
+        expect(JSON.parse(result[getEnvName(key)])).toBe(expected);
       },
     );
   });
+  describe('format', () => {
+    describe('string', () => {
+      it('should be enclosed in double quotes when type is string', () => {
+        const key = 'ROLLUP_VALUE_STRING';
+        const typeInfo = getTypeInfo({ key, type: 'string' });
+        const result = getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo);
 
-  it('should be enclosed in double quotes when type is string', () => {
-    const typeInfo: TypeDefinition = {
-      ROLLUP_VALUE_STRING: 'string',
-    };
-    const result = Object.values(
-      getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo),
-    );
-    expect(result).toHaveLength(1);
-    expect(result[0]).toBe(JSON.stringify('Test local value'));
+        expect(Object.values(result)).toHaveLength(1);
+        expect(JSON.parse(result[getEnvName(key)])).toBe('Test local value');
+      });
+    });
+
+    describe('number', () => {
+      it('should not be enclosed in double quotes when type is number', () => {
+        const key = 'ROLLUP_VALUE_NUMBER';
+        const typeInfo = getTypeInfo({ key, type: 'number' });
+
+        const result = getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo);
+
+        expect(Object.values(result)).toHaveLength(1);
+        expect(result[getEnvName(key)]).toBe('2');
+      });
+    });
+    describe('boolean', () => {
+      it.each`
+        key            | expected
+        ${'false'}     | ${false}
+        ${'undefined'} | ${false}
+        ${'empty'}     | ${false}
+        ${'null'}      | ${false}
+        ${'NaN'}       | ${false}
+        ${'zero'}      | ${false}
+        ${'true'}      | ${true}
+        ${'one'}       | ${true}
+        ${'string'}    | ${true}
+      `('should retern string of boolean value: $key', ({ key, expected }) => {
+        const formatedKey = `ROLLUP_VALUE_${key.toUpperCase()}`;
+        const typeInfo = getTypeInfo({ key: formatedKey, type: 'boolean' });
+
+        const result = getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo);
+
+        expect(Object.values(result)).toHaveLength(1);
+        expect(result[getEnvName(formatedKey)]).toBe(JSON.stringify(expected));
+      });
+    });
   });
 
-  it('should not be enclosed in double quotes when type is number', () => {
-    const typeInfo: TypeDefinition = {
-      ROLLUP_VALUE_NUMBER: 'number',
-    };
-    const result = Object.values(
-      getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo),
-    );
-    expect(result).toHaveLength(1);
-    expect(result[0]).toBe('2');
-  });
-
-  describe('should retern string of boolean value', () => {
+  describe('env-expand', () => {
     it.each`
-      key            | expected
-      ${'false'}     | ${false}
-      ${'undefined'} | ${false}
-      ${'empty'}     | ${false}
-      ${'null'}      | ${false}
-      ${'NaN'}       | ${false}
-      ${'zero'}      | ${false}
-      ${'true'}      | ${true}
-      ${'one'}       | ${true}
-      ${'string'}    | ${true}
-    `('$key', ({ key, expected }) => {
-      const typeInfo: TypeDefinition = {};
-      typeInfo[`ROLLUP_VALUE_${key.toUpperCase()}`] = 'boolean';
+      key                       | expected
+      ${'ROLLUP_VALUE_EXPAND2'} | ${'expand value with same env file'}
+      ${'ROLLUP_VALUE_EXPAND3'} | ${'expand value with different env file'}
+    `('shoud be expanded : $expected ', ({ key, expected }) => {
+      const typeInfo = getTypeInfo({ key, type: 'string' });
 
-      const result = Object.values(
-        getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo),
-      );
+      const result = getReplacements(envDir, 'ROLLUP_', 'NODE_ENV', typeInfo);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toBe(JSON.stringify(expected));
+      expect(Object.values(result)).toHaveLength(1);
+      expect(JSON.parse(result[getEnvName(key)])).toBe(expected);
     });
   });
 });
