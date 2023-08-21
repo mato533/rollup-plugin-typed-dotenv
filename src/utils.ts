@@ -35,8 +35,10 @@ export const getReplacements = (
 
   const env = getEnv(['.env', '.env.local', ...modeEnvFiles], envDir);
 
+  const expandEnv = perseDotenvExpand(env);
+
   return Object.fromEntries(
-    Object.entries(env)
+    Object.entries(expandEnv)
       .filter(([key]) => key.startsWith(envPrefix))
       .filter(([key]) => configkeys.includes(key))
       .map(([key, value]) => getReplaceKeyValue(key, value, typeInfo[key])),
@@ -44,16 +46,12 @@ export const getReplacements = (
 };
 
 const getEnv = (envFiles: string[], envDir: string): DotenvParseOutput => {
-  const env = envFiles
+  return envFiles
     .map((envFile) => path.resolve(envDir, envFile))
     .filter((envFile) => fs.existsSync(envFile))
     .map((envFile) => fs.readFileSync(envFile, { encoding: 'utf-8' }))
     .map((envContent) => dotenv.parse(envContent))
-    .reduce((pre, current) => {
-      return Object.assign(pre, current);
-    }, {});
-
-  return perseDotenvExpand(env);
+    .reduce((pre, current) => Object.assign(pre, current), {});
 };
 
 const perseDotenvExpand = (parsed: DotenvParseOutput): DotenvParseOutput => {
