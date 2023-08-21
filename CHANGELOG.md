@@ -1,8 +1,10 @@
-## 1.0.1 (2023-08-18)
+## [1.0.1](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/v1.0.0...v1.0.1) (2023-08-18)
 
 ### Bug Fixes
 
 - add default statment for type export for plugin ([2ba9109](https://github.com/mato533/rollup-plugin-typed-dotenv/commit/2ba9109013bb603cccb1e08190e905fac2eee06c))
+
+# [1.0.0](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/f2a7551b0c59d39d21eda542d0e5e4cf880e5007...v1.0.0) (2023-08-18)
 
 ### Features
 
