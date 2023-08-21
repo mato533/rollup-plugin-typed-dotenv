@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import dotenv from 'dotenv';
+import dotenvExpand from 'dotenv-expand';
 
 import type { DotenvParseOutput } from 'dotenv';
 import type {
@@ -32,22 +33,35 @@ export const getReplacements = (
   const mode = process.env[envKey];
   const modeEnvFiles = mode ? [`.env.${mode}`, `.env.${mode}.local`] : [];
 
-  return ['.env', '.env.local', ...modeEnvFiles]
+  const env = getEnv(['.env', '.env.local', ...modeEnvFiles], envDir);
+
+  return Object.fromEntries(
+    Object.entries(env)
+      .filter(([key]) => key.startsWith(envPrefix))
+      .filter(([key]) => configkeys.includes(key))
+      .map(([key, value]) => getReplaceKeyValue(key, value, typeInfo[key])),
+  );
+};
+
+const getEnv = (envFiles: string[], envDir: string): DotenvParseOutput => {
+  const env = envFiles
     .map((envFile) => path.resolve(envDir, envFile))
     .filter((envFile) => fs.existsSync(envFile))
     .map((envFile) => fs.readFileSync(envFile, { encoding: 'utf-8' }))
     .map((envContent) => dotenv.parse(envContent))
-    .map((envEntries) => {
-      return Object.fromEntries(
-        Object.entries(envEntries)
-          .filter(([key]) => key.startsWith(envPrefix))
-          .filter(([key]) => configkeys.includes(key))
-          .map(([key, value]) => getReplaceKeyValue(key, value, typeInfo[key])),
-      );
-    })
     .reduce((pre, current) => {
       return Object.assign(pre, current);
     }, {});
+
+  return perseDotenvExpand(env);
+};
+
+const perseDotenvExpand = (parsed: DotenvParseOutput): DotenvParseOutput => {
+  const result = dotenvExpand.expand({
+    ignoreProcessEnv: true,
+    parsed,
+  }).parsed;
+  return result ? result : {};
 };
 
 const getReplaceKeyValue = (key: string, value: string, type: EnumTypes) => {
