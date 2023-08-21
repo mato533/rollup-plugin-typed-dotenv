@@ -60,20 +60,20 @@ console.log(false);
 
 #### `envDir`
 
-Type:`string`
-Default: `process.cwd()`
+Type:`string`  
+Default: `process.cwd()`  
 directory in which to search for env files.
 
 #### `envPrefix`
 
-Type:`string`
-Default: `ROLLUP_`
+Type:`string`  
+Default: `ROLLUP_`  
 Only enviroment valiable which has this prefix is exposed to javascript code.
 
 #### `envKey`
 
-Type:`string`
-Default: `NODE_ENV`
+Type:`string`  
+Default: `NODE_ENV`  
 Key used to search for .env files for environment in which an application is running
 
 #### `preventAssignment`
@@ -91,3 +91,9 @@ define type of environment valiables
   ROLLUP_VALUE_FALSE: 'boolean',
 }
 ```
+
+##### Supported types
+
+- string
+- number
+- boolean
