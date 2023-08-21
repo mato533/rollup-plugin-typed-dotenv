@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/v1.0.1...v1.1.0) (2023-08-21)
+
+### Features
+
+- support dotenv-expand ([710382b](https://github.com/mato533/rollup-plugin-typed-dotenv/commit/710382bfd48ff1d7d222354daca97cbdad6782d1))
+
 ## [1.0.1](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/v1.0.0...v1.0.1) (2023-08-18)
 
 ### Bug Fixes
