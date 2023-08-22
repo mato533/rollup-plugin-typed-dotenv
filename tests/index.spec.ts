@@ -227,9 +227,10 @@ describe('env', () => {
 
   describe('env-expand', () => {
     it.each`
-      key                       | expected
-      ${'ROLLUP_VALUE_EXPAND2'} | ${'expand value with same env file'}
-      ${'ROLLUP_VALUE_EXPAND3'} | ${'expand value with different env file'}
+      key                          | expected
+      ${'ROLLUP_VALUE_EXPAND2'}    | ${'expand value with same env file'}
+      ${'ROLLUP_VALUE_EXPAND3'}    | ${'expand value with different env file'}
+      ${'ROLLUP_EXPAND_NODE_MODE'} | ${'expand value with enviroment valiables(test)'}
     `('shoud be expanded : $expected ', ({ key, expected }) => {
       const typeInfo = getTypeInfo({ key, type: 'string' });
 

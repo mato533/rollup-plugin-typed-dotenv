@@ -55,10 +55,7 @@ const getEnv = (envFiles: string[], envDir: string): DotenvParseOutput => {
 };
 
 const perseDotenvExpand = (parsed: DotenvParseOutput): DotenvParseOutput => {
-  const result = dotenvExpand.expand({
-    ignoreProcessEnv: true,
-    parsed,
-  }).parsed;
+  const result = dotenvExpand.expand({ parsed }).parsed;
   return result ? result : {};
 };
 
