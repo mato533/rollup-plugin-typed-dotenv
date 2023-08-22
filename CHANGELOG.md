@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/v1.1.0...v1.1.1) (2023-08-22)
+
+### Bug Fixes
+
+- fix to consider environment variables when expand works ([183549e](https://github.com/mato533/rollup-plugin-typed-dotenv/commit/183549e5a19c72ff6039dec12aff1705292797cb))
+
 # [1.1.0](https://github.com/mato533/rollup-plugin-typed-dotenv/compare/v1.0.1...v1.1.0) (2023-08-21)
 
 ### Features
