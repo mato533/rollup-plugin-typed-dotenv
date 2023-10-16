@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-typed-dotenv",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "When this plug-in replaces code with environment variables, it converts to an appropriate form according to the plugin settings.",
   "scripts": {
     "format": "prettier --write --cache .",
@@ -10,6 +10,14 @@
     "test": "vitest --run",
     "test:ts": "tsc --noEmit",
     "test:coverage": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "rollup": "^3.25.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "rollup": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.0.1",
