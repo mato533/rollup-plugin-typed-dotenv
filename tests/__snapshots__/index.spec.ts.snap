@@ -15,7 +15,7 @@ if (true === true) {
 
 exports[`replace > should replace with contents of env files 1`] = `
 "/* eslint-disable no-undef */
-console.log(\\"Test local value\\");
+console.log("Test local value");
 console.log(2);
 console.log(false);
 
