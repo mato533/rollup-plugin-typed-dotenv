@@ -29,7 +29,7 @@
     "eslint": "^9.2.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
-    "lint-staged": "^15.2.2",
+    "lint-staged": "^15.2.5",
     "prettier": "^3.2.5",
     "rollup": "^4.17.2",
     "rollup-plugin-copy": "^3.5.0",
@@ -44,7 +44,7 @@
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6"
   },
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@9.1.2",
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
   },
