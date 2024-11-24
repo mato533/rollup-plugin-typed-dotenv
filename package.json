@@ -44,7 +44,7 @@
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.7"
   },
-  "packageManager": "pnpm@9.13.2",
+  "packageManager": "pnpm@9.14.2",
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged --concurrent false"
   },
