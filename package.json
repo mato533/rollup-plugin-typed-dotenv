@@ -42,7 +42,7 @@
   "dependencies": {
     "@rollup/plugin-replace": "^6.0.1",
     "dotenv": "^16.4.7",
-    "dotenv-expand": "^11.0.7"
+    "dotenv-expand": "^12.0.1"
   },
   "packageManager": "pnpm@9.15.0",
   "simple-git-hooks": {
